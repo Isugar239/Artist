@@ -14,8 +14,6 @@ public:
     : left(res, l_dir, l_step),
       right(res, r_dir, r_step)
   {
-    left.setRunMode(FOLLOW_POS);
-    right.setRunMode(FOLLOW_POS);
 
     left.setMaxSpeed(maxSpeed);
     right.setMaxSpeed(maxSpeed);
