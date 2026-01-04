@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 class Stepper {
-  /*НЕ ТРОГАТЬ, КЛАСС ДЛЯ КАРТА*/
+  /*НЕ ТРОГАТЬ, КЛАСС ДЛЯ cart*/
 private:
   int dirPin;
   int stepPin;
@@ -48,14 +48,14 @@ public:
       return false;
     }
     
-    float maxSpeedForDist = sqrt(2.0 * accel * abs(dist));
+    float maxV = sqrt(2.0 * accel * abs(dist)); 
     
-    if (speed < maxSpeed && speed < maxSpeedForDist) {
+    if (speed < maxSpeed && speed < maxV) { // еще разгонняемся
       speed = min(speed + accel * 0.0001, maxSpeed);
-    } else if (maxSpeedForDist < speed) {
-      speed = max(speed - accel * 0.0001, maxSpeedForDist);
-    } else {
-      speed = min(speed, maxSpeedForDist);
+    } else if (maxV < speed) { // уже тормозим
+      speed = max(speed - accel * 0.0001, maxV);
+    } else { // верхушка трапеции
+      speed = min(speed, maxV);
     }
     
     delay = speed > 0 ? (unsigned long)(1000000.0 / speed) : 1000000;
