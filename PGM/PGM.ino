@@ -2,8 +2,10 @@
 #include "GyverOLEDMenu.h"
 #include "cart.h"
 #include "encoder.h"
+#include "sensor.h"
 
 Encoder enc(10, 11, 13);
+Sensor sensor;
 GyverOLED<SSD1306_128x64> oled;
 
 OledMenu<6, GyverOLED<SSD1306_128x64>> menu(&oled);
@@ -77,4 +79,10 @@ void setup() {
 void loop() {
   enc.tick();
   encoderCallback();
+  sensor.tick();
+  
+  // ждем клик энкодера для считывания черного
+  if (enc.clicked && !sensor.calibrated) {
+    sensor.calibrateBlack();
+  }
 }
