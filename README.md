@@ -6,5 +6,5 @@
 ### .h files were made in VSCode, without chatGPT
 ### main file contains all classes from .h files avoid Stepper(you dont need to use it, cause it contains in cart class)
 ## 3D
-### mostly model was made in Autodesk Inventor 24. toothed_rack was downloaded in .step format from mipt site.
+### mostly model was made in Autodesk Inventor 24. toothed_rack was downloaded in .step format from mipt site. main file is "робот.ipt" 
  
