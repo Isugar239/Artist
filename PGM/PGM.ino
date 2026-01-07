@@ -1,16 +1,42 @@
 #include <GyverOLED.h>
+#include <Wire.h>
 #include "GyverOLEDMenu.h"
 #include "cart.h"
 #include "encoder.h"
+#include "rgb.h"
 #include "sensor.h"
-
-Encoder enc(10, 11, 13);
 Sensor sensor;
 GyverOLED<SSD1306_128x64> oled;
-
+Encoder enc(10, 11, 14);
+cart IvanTM(1, 2, 4, 3, 5);
+rgb<8, 3> fara(3, 100);
 OledMenu<6, GyverOLED<SSD1306_128x64>> menu(&oled);
 
+
 void func1() {
+  oled.clear();
+  oled.setScale(2);
+  oled.setCursor(20, 25);
+  oled.print("ДВИЖЕНИЕ");
+  oled.update();
+  fara.green();
+  // Едем вперед 200 мм
+  IvanTM.gotoPos(200);
+  delay(500);
+  fara.red();
+  // Едем назад 200 мм (возвращаемся в 0)
+  IvanTM.gotoPos(0);
+  
+  oled.clear();
+  oled.setScale(2);
+  oled.setCursor(15, 25);
+  oled.print("ГОТОВО!");
+  oled.update();
+  delay(2000);
+  oled.setScale(1);
+  fara.clear();
+  menu.showMenu(true);
+  oled.update();
 }
 
 void func2() {
@@ -31,8 +57,8 @@ void func6() {
 void (*menuFuncs[6])() = {func1, func2, func3, func4, func5, func6};
 
 const char* menuNames[6] = {
-  "Функция 1", "Функция 2", "Функция 3",
-  "Функция 4", "Функция 5", "Функция 6"
+  "1", "2", "3",
+  "4", "5", "6"
 };
 
 // Колбэк при выборе пункта меню
@@ -47,14 +73,16 @@ void onItemChange(const int index, const void* val, const byte valType) { //чт
 void encoderCallback() {
   if (enc.dir != 0) {
     if (enc.dir == 1) {
-      menu.selectPrev(false); //false значит без скипов элементов
+      menu.selectNext(false); //false значит без скипов элементов
     } else {
-      menu.selectNext(false);
+      menu.selectPrev(false);
     }
+    oled.update(); // Обновляем экран для надежности
   }
   
   if (enc.clicked) {
     menu.toggleChangeSelected();
+    oled.update();
   }
 }
 
@@ -63,26 +91,29 @@ void setup() {
   Wire.setClock(400000L);
   oled.clear();
   oled.update();
-
+  Serial.begin(9600);
   menu.onChange(onItemChange, false);
 
-  menu.addItem(PSTR("Функция 1"));
-  menu.addItem(PSTR("Функция 2"));
-  menu.addItem(PSTR("Функция 3"));
-  menu.addItem(PSTR("Функция 4"));
-  menu.addItem(PSTR("Функция 5"));
-  menu.addItem(PSTR("Функция 6"));
+  menu.addItem(PSTR("1"));
+  menu.addItem(PSTR("2"));
+  menu.addItem(PSTR("3"));
+  menu.addItem(PSTR("4"));
+  menu.addItem(PSTR("5"));
+  menu.addItem(PSTR("6"));
 
   menu.showMenu(true);
+  fara.begin();
+  Serial.println("inited");
+  IvanTM.setPos(200);
+  while(IvanTM.tick()){delay(1);}
+  IvanTM.setPos(-200);
+  while(IvanTM.tick()){delay(1);}
+  
 }
 
 void loop() {
   enc.tick();
   encoderCallback();
   sensor.tick();
-  
-  // ждем клик энкодера для считывания черного
-  if (enc.clicked && !sensor.calibrated) {
-    sensor.calibrateBlack();
-  }
+  IvanTM.tick(); // Обновление двигателей
 }

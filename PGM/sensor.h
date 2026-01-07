@@ -30,6 +30,10 @@ public:
     }
   }
 
+  void calibrateWhite() {
+    whiteValue = analogRead(pin);
+  }
+
   void calibrateBlack() {
     blackValue = analogRead(pin);
     calibrated = true;
