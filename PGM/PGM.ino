@@ -5,11 +5,13 @@
 #include "encoder.h"
 #include "rgb.h"
 #include "sensor.h"
+#include "marker.h"
 Sensor sensor;
 GyverOLED<SSD1306_128x64> oled;
 Encoder enc(10, 11, 14);
 cart IvanTM(1, 2, 4, 3, 5);
 rgb<8, 3> fara(3, 100);
+marker black(9, 90, 270, IvanTM);
 OledMenu<6, GyverOLED<SSD1306_128x64>> menu(&oled);
 
 
@@ -22,8 +24,12 @@ void func1() {
   fara.green();
   // Едем вперед 200 мм
   IvanTM.gotoPos(200);
+  black.down();
+
   delay(500);
+  black.up();
   fara.red();
+
   // Едем назад 200 мм (возвращаемся в 0)
   IvanTM.gotoPos(0);
   
@@ -92,6 +98,7 @@ void setup() {
   oled.clear();
   oled.update();
   Serial.begin(9600);
+  black.up();
   menu.onChange(onItemChange, false);
 
   menu.addItem(PSTR("1"));
@@ -108,6 +115,7 @@ void setup() {
   while(IvanTM.tick()){delay(1);}
   IvanTM.setPos(-200);
   while(IvanTM.tick()){delay(1);}
+  func1();
   
 }
 
