@@ -5,17 +5,19 @@
 class marker {
 private:
   Servo marker;
+  int pin;
   int posUp;
   int posDown;
   cart& robot;
 
 public:
   marker(int pin, int up, int down, cart& c)
-    : posUp(up), posDown(down), robot(c) {
-    marker.attach(pin);
-    marker.write(posUp);
+    : pin(pin), posUp(up), posDown(down), robot(c) {
+    // marker.write(posUp);
   }
-
+  void begin(){
+    marker.attach(pin);
+  }
   void up() {
     marker.write(posUp);
   }

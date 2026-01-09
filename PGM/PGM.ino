@@ -8,7 +8,7 @@
 #include "marker.h"
 Sensor sensor;
 GyverOLED<SSD1306_128x64> oled;
-Encoder enc(10, 11, 14);
+Encoder enc(10, 11, 12);
 cart IvanTM(1, 2, 4, 3, 5);
 rgb<8, 3> fara(3, 100);
 marker black(9, 90, 270, IvanTM);
@@ -71,6 +71,7 @@ const char* menuNames[6] = {
 void onItemChange(const int index, const void* val, const byte valType) { //чтобы просто прокрутка не вызывала функцию, а именно тык по ней
   if (valType == VAL_ACTION) {
     if (index >= 0 && index < 6) {
+      Serial.println(index);
       menuFuncs[index](); // указатель вызывает функцию
     }
   }
@@ -98,7 +99,7 @@ void setup() {
   oled.clear();
   oled.update();
   Serial.begin(9600);
-  black.up();
+  black.begin();
   menu.onChange(onItemChange, false);
 
   menu.addItem(PSTR("1"));
@@ -111,11 +112,7 @@ void setup() {
   menu.showMenu(true);
   fara.begin();
   Serial.println("inited");
-  IvanTM.setPos(200);
-  while(IvanTM.tick()){delay(1);}
-  IvanTM.setPos(-200);
-  while(IvanTM.tick()){delay(1);}
-  func1();
+  
   
 }
 

@@ -34,6 +34,10 @@ public:
   }
 
   prevA = currA;
+  if(digitalRead(pinTouchButton) != prevTouchBtn){
+    clicked=digitalRead(pinTouchButton);
+    prevTouchBtn = clicked;
+  }
 }
 
 };
