@@ -9,11 +9,11 @@ private:
   int blackValue;
 
 public:
-  int grey;
+  int data;
   bool calibrated;
 
   Sensor(int p = 15)
-    : pin(p), whiteValue(0), blackValue(0), calibrated(false), grey(128)
+    : pin(p), whiteValue(0), blackValue(0), calibrated(false), data(128)
   {
     pinMode(pin, INPUT);
     whiteValue = analogRead(pin);
@@ -24,9 +24,9 @@ public:
     
     if (calibrated) {
       int mapped = map(raw, blackValue, whiteValue, 0, 255);
-      grey = constrain(mapped, 0, 255);
+      data = constrain(mapped, 0, 255);
     } else {
-      grey = map(raw, 0, 1023, 0, 255);
+      data = map(raw, 0, 1023, 0, 255);
     }
   }
 
@@ -43,7 +43,7 @@ public:
     c.setPos(1000);
     while (c.tick()) {
       tick();
-      if (grey < 128) {
+      if (data < 128) {
         break;
       }
     }

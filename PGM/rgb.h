@@ -25,6 +25,8 @@ public:
 
   void red()    { setAll(CRGB::Red); }
   void green()  { setAll(CRGB::Green); }
+    void yellow()  { setAll(CRGB::Yellow); }
+    void white()  { setAll(CRGB::White); }
 
 private:
   void setAll(const CRGB& c) {

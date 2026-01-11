@@ -16,8 +16,8 @@ public:
        int l_dir, int l_step,
        int r_dir, int r_step,
        int maxSpeed = 4000,
-       int maxAccel = 500,
-       float stepsPerMm = 25.0)
+       int maxAccel = 1000,
+       float stepsPerMm = 23.02)
     : left(res, l_step, l_dir),
       right(res, r_step, r_dir),
       stepsPerMm(stepsPerMm),

@@ -12,33 +12,24 @@ Encoder enc(10, 11, 12);
 cart IvanTM(1, 2, 4, 3, 5);
 rgb<8, 3> fara(3, 100);
 marker black(9, 90, 270, IvanTM);
+Sensor tcrt(A1);
 OledMenu<6, GyverOLED<SSD1306_128x64>> menu(&oled);
 
 
 void func1() {
   oled.clear();
-  oled.setScale(2);
-  oled.setCursor(20, 25);
-  oled.print("ДВИЖЕНИЕ");
+ 
   oled.update();
   fara.green();
-  // Едем вперед 200 мм
-  IvanTM.gotoPos(200);
+  IvanTM.gotoPos(100);
   black.down();
 
   delay(500);
   black.up();
   fara.red();
 
-  // Едем назад 200 мм (возвращаемся в 0)
   IvanTM.gotoPos(0);
-  
-  oled.clear();
-  oled.setScale(2);
-  oled.setCursor(15, 25);
-  oled.print("ГОТОВО!");
-  oled.update();
-  delay(2000);
+ 
   oled.setScale(1);
   fara.clear();
   menu.showMenu(true);
@@ -46,12 +37,20 @@ void func1() {
 }
 
 void func2() {
+  fara.white();
+  black.drawLine(50, 100);
+  IvanTM.gotoPos(30);
+  black.down();
+  black.up();
+  IvanTM.gotoPos(0);
 }
 
 void func3() {
+  black.down();
 }
 
 void func4() {
+  black.up();
 }
 
 void func5() {
@@ -63,8 +62,8 @@ void func6() {
 void (*menuFuncs[6])() = {func1, func2, func3, func4, func5, func6};
 
 const char* menuNames[6] = {
-  "1", "2", "3",
-  "4", "5", "6"
+  "1", "2", "donw",
+  "up", "5", "6"
 };
 
 // Колбэк при выборе пункта меню
@@ -84,7 +83,7 @@ void encoderCallback() {
     } else {
       menu.selectPrev(false);
     }
-    oled.update(); // Обновляем экран для надежности
+    oled.update(); 
   }
   
   if (enc.clicked) {
@@ -112,7 +111,15 @@ void setup() {
   menu.showMenu(true);
   fara.begin();
   Serial.println("inited");
-  
+  while(!enc.clicked){enc.tick();}
+  tcrt.calibrateWhite();
+  Serial.println(analogRead(A1));
+  while(enc.clicked){enc.tick();}
+    while(!enc.clicked){enc.tick();}
+  tcrt.calibrateBlack();
+  Serial.println(analogRead(A1));
+
+  while(enc.clicked){enc.tick();}
   
 }
 
@@ -120,5 +127,5 @@ void loop() {
   enc.tick();
   encoderCallback();
   sensor.tick();
-  IvanTM.tick(); // Обновление двигателей
+  IvanTM.tick(); 
 }
