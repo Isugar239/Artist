@@ -19,15 +19,16 @@ public:
     whiteValue = analogRead(pin);
   }
 
-  void tick() {
+  int tick() {
     int raw = analogRead(pin);
     
     if (calibrated) {
-      int mapped = map(raw, blackValue, whiteValue, 0, 255);
-      data = constrain(mapped, 0, 255);
+      int mapped = map(raw, blackValue, whiteValue, 255, 0);
+      data = constrain(mapped, 255, 0);
     } else {
-      data = map(raw, 0, 1023, 0, 255);
+      data = map(raw, 0, 1023, 255, 0);
     }
+    return data;
   }
 
   void calibrateWhite() {
@@ -41,14 +42,16 @@ public:
 
   void align(cart& c) {
     c.setPos(1000);
-    while (c.tick()) {
-      tick();
+    while (true) {
+      c.tick();
+      
       if (data < 128) {
         break;
       }
     }
-    c.setPos(0);
-    while (c.tick()) {}
+    c.gotoPos(c.getPos());
+    // c.setPos(0);
+    // while (c.tick()) {}
   }
 };
 

@@ -17,7 +17,7 @@ public:
        int r_dir, int r_step,
        int maxSpeed = 4000,
        int maxAccel = 1000,
-       float stepsPerMm = 23.02)
+       float stepsPerMm = 23.15)
     : left(res, l_step, l_dir),
       right(res, r_step, r_dir),
       stepsPerMm(stepsPerMm),
@@ -31,7 +31,10 @@ public:
     left.setAcceleration(maxAccel);
     right.setAcceleration(maxAccel);
   }
-
+  void setZero(){
+    right.reset();
+    left.reset();
+  }
   void setPos(float mm) {
     long steps = mm * stepsPerMm;
     left.setTarget(steps);
@@ -43,7 +46,9 @@ public:
     bool r = right.tick();
     return l || r;  
   }
-
+  int getPos(){
+    return (right.getCurrent() + left.getCurrent())/2/stepsPerMm;
+  }
   void gotoPos(float mm) {
     setPos(mm);
     unsigned long start = millis();

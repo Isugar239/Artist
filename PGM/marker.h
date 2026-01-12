@@ -20,10 +20,12 @@ public:
   }
   void up() {
     marker.write(posUp);
+    delay(500);
   }
 
   void down() {
     marker.write(posDown);
+    delay(500);
   }
 
   void drawLine(int posStart, int posStop) {

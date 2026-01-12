@@ -6,6 +6,7 @@
 #include "rgb.h"
 #include "sensor.h"
 #include "marker.h"
+int offset = 0;
 Sensor sensor;
 GyverOLED<SSD1306_128x64> oled;
 Encoder enc(10, 11, 12);
@@ -14,22 +15,47 @@ rgb<8, 3> fara(3, 100);
 marker black(9, 90, 270, IvanTM);
 Sensor tcrt(A1);
 OledMenu<6, GyverOLED<SSD1306_128x64>> menu(&oled);
+int gray;
+void blackline(){
+   IvanTM.setPos(0);
+  while (true) {
+    int sen = analogRead(A1);
+    // Serial.println(analogRead(A1));
 
+    if (sen < gray) {
+      IvanTM.tick();
+      // Serial.println(IvanTM.getPos());
 
+    } else {
+      Serial.println(analogRead(A1));
+
+      break;
+    }
+    //  Serial.print("pos=");
+    // Serial.println(IvanTM.getPos());
+  }
+  Serial.println("Start to doinf smth");
+  Serial.print("Pos = ");
+  Serial.println(IvanTM.getPos());
+  IvanTM.gotoPos(IvanTM.getPos() - 49);
+  IvanTM.setZero();
+  IvanTM.gotoPos(-60);
+}
 void func1() {
   oled.clear();
- 
+
   oled.update();
   fara.green();
-  IvanTM.gotoPos(100);
+ for(int i = 0;  i< 10; i++){
+  fara.white();
+  IvanTM.gotoPos(i*10);
+  fara.yellow();
   black.down();
-
   delay(500);
   black.up();
-  fara.red();
 
-  IvanTM.gotoPos(0);
- 
+ }
+IvanTM.gotoPos(-60);
   oled.setScale(1);
   fara.clear();
   menu.showMenu(true);
@@ -37,12 +63,12 @@ void func1() {
 }
 
 void func2() {
-  fara.white();
-  black.drawLine(50, 100);
-  IvanTM.gotoPos(30);
+  IvanTM.gotoPos(0);
   black.down();
   black.up();
-  IvanTM.gotoPos(0);
+IvanTM.gotoPos(100);
+black.down();
+black.up();
 }
 
 void func3() {
@@ -54,24 +80,42 @@ void func4() {
 }
 
 void func5() {
+  black.up();
+  int bl= analogRead(A1), wl=analogRead(A1);
+  IvanTM.setPos(100);
+  while (IvanTM.tick()) {
+    int sen = analogRead(A1);
+    if (sen > bl)
+      bl = sen;
+
+    if (sen < wl)
+      wl = sen;
+  }
+  gray = (bl + wl) / 6;
+
+  Serial.print("GRAY=");
+  Serial.println(gray);
+ blackline();
 }
 
 void func6() {
-}
-
-void (*menuFuncs[6])() = {func1, func2, func3, func4, func5, func6};
+  for(int i = 0; i<10; i+=2){
+  black.drawLine(i*10, (i+1)*10);
+}}
+void func7(){}
+void (*menuFuncs[7])() = { func1, func2, func3, func4, func5, func6, func7 };
 
 const char* menuNames[6] = {
   "1", "2", "donw",
-  "up", "5", "6"
+  "up", "calibr", "6"
 };
 
 // Колбэк при выборе пункта меню
-void onItemChange(const int index, const void* val, const byte valType) { //чтобы просто прокрутка не вызывала функцию, а именно тык по ней
+void onItemChange(const int index, const void* val, const byte valType) {  //чтобы просто прокрутка не вызывала функцию, а именно тык по ней
   if (valType == VAL_ACTION) {
-    if (index >= 0 && index < 6) {
+    if (index >= 0 && index < 7) {
       Serial.println(index);
-      menuFuncs[index](); // указатель вызывает функцию
+      menuFuncs[index]();  // указатель вызывает функцию
     }
   }
 }
@@ -79,13 +123,13 @@ void onItemChange(const int index, const void* val, const byte valType) { //чт
 void encoderCallback() {
   if (enc.dir != 0) {
     if (enc.dir == 1) {
-      menu.selectNext(false); //false значит без скипов элементов
+      menu.selectNext(false);  //false значит без скипов элементов
     } else {
       menu.selectPrev(false);
     }
-    oled.update(); 
+    oled.update();
   }
-  
+
   if (enc.clicked) {
     menu.toggleChangeSelected();
     oled.update();
@@ -103,29 +147,22 @@ void setup() {
 
   menu.addItem(PSTR("1"));
   menu.addItem(PSTR("2"));
-  menu.addItem(PSTR("3"));
-  menu.addItem(PSTR("4"));
-  menu.addItem(PSTR("5"));
+  menu.addItem(PSTR("DOwn"));
+  menu.addItem(PSTR("Up"));
+  menu.addItem(PSTR("calibrovka"));
   menu.addItem(PSTR("6"));
+  menu.addItem(PSTR("7"));
 
   menu.showMenu(true);
   fara.begin();
   Serial.println("inited");
-  while(!enc.clicked){enc.tick();}
-  tcrt.calibrateWhite();
-  Serial.println(analogRead(A1));
-  while(enc.clicked){enc.tick();}
-    while(!enc.clicked){enc.tick();}
-  tcrt.calibrateBlack();
-  Serial.println(analogRead(A1));
 
-  while(enc.clicked){enc.tick();}
-  
+  while (enc.clicked) { enc.tick(); }
 }
 
 void loop() {
   enc.tick();
   encoderCallback();
   sensor.tick();
-  IvanTM.tick(); 
+  IvanTM.tick();
 }
